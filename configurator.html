@@ -1,0 +1,247 @@
+<!doctype html>
+<title>base.css configurator</title>
+<meta charset="utf-8">
+<style id="basecss"></style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share:400|Jaldi:400,700|Fira+Mono:400,700">
+<style>
+  body { opacity: 0; }
+  fieldset div {
+    display: flex;
+    align-items: center;
+  }
+  fieldset div:not(:last-child) {
+    margin-bottom: 10px;
+  }
+  fieldset div input.color {
+    width: 5.1em !important;
+    font-family: Fira Mono, monospace !important;
+    font-size: 0.8em !important;
+    margin-bottom: 0 !important;
+    margin-right: 10px;
+  }
+  fieldset div label {
+    flex-grow: 1;
+  }
+</style>
+
+<h1>base.css configurator</h1>
+<h2>Hello World!</h2>
+
+<p>
+  Welcome to the configuration tool for <a href="https://gist.github.com/moqmar/ba61cb2293dec3b303aaab02182f70bb">base.css</a>! Feel free to play around a bit, this page will update in real-time! \o/<br>
+  This is a <a href="https://thatdomaindoesntexist.noiguessitreallydoesnt/abcdefg">link you didn't visit yet</a>, and I guess <a href="">you've been here already</a>!
+</p>
+
+<fieldset><legend>Layout</legend>
+  <label><input name="layout" value="none" type="radio" onchange="update()">
+         No Layout</label>
+
+  <label><input name="layout" value="centered" type="radio" onchange="update()" checked>
+         Centered Layout</label>
+  
+  <label><input name="layout" value="fullwidth" onchange="update()" type="radio">
+         Full-width Layout</label>
+</fieldset>
+
+<fieldset><legend>Fonts</legend>
+  <label for="font-text">Choose a text font</label>
+  <input id="font-text" value="Jaldi, sans-serif" oninput="update()">
+  
+  <label for="font-headline">Choose a headline font</label>
+  <input id="font-headline" value="Share, sans-serif" oninput="update()">
+  
+  <label for="font-code">Choose a code font</label>
+  <input id="font-code" value="Fira Mono, monospace" oninput="update()">
+  
+  <pre style="margin-bottom: 0">I guess the code font will look like this! :]</pre>
+</fieldset>
+
+<fieldset><legend>Colors</legend>
+  <div><input id="color-root-bg" class="color" value="#FFFFFF">
+       <label>Root Background</label></div>
+  
+  <div><input id="color-text-primary" class="color" value="#181818">
+       <label>Text Color</label></div>
+  
+  <div><input id="color-text-secondary" class="color" value="#666666">
+       <label>Secondary Text Color (Address, Blockquote, ...)</label></div>
+  
+  <div><input id="color-accent" class="color" value="#036DFF">
+       <label>Link &amp; Accent Foreground Color</label></div>
+  
+  <div><input id="color-visited" class="color" value="#7E38FF">
+       <label>Visited Link Color</label></div>
+  
+  <div><input id="color-accent-bg-primary" class="color" value="#EEF1F4">
+       <label>Accent Background Color</label></div>
+  
+  <div><input id="color-accent-bg-primary-text" class="color" value="#000000">
+       <label>Text On Accent Background Color (e.g. Code Blocks)</label></div>
+  
+  <div><input id="color-accent-bg-secondary" class="color" value="#F9FAFB">
+       <label>Light Background Color (e.g. Blockquote, Table Header)</label></div>
+  
+  <div><input id="color-accent-bg-secondary-text" class="color" value="#666666">
+       <label>Blockquote Text</label></div>
+  
+  <div><input id="color-accent-bg-secondary-text-disabled" class="color" value="#AAAAAA">
+       <label>Disabled Text On Accent Background Color</label></div>
+
+  <div><input id="color-accent-border" class="color" value="#DEE1E4">
+       <label>Accent Border Color</label></div>
+</fieldset>
+
+<button onclick="getCode()">Get my code!</button>
+
+<pre id="code" style="word-wrap: break-word; font-size: 12px"></pre>
+
+<script src="https://cdn.rawgit.com/PitPik/colorPicker/41d780c3/color.all.min.js"></script>
+<script src="https://cdn.rawgit.com/PitPik/colorPicker/41d780c3/javascript_implementation/jsColorPicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=fetch"></script>
+
+<script>
+  window.module = {exports:{}};
+  window.require = function(what) {
+    switch (what) {
+      case "fs": return {};
+      case "path": return {
+        sep: "/",
+        resolve: function resolve() {
+          var args = Array.prototype.slice.call(arguments);
+          var path = args[0];
+          for (var i = 1; i < args.length; args++) {
+            if (args[i].match(/^\//)) path = args[i];
+            else path += (path.match(/\/$/) ? "" : "/") + args[i];
+          }
+          while (path != (path = path.replace(/(?:[^\/]*\/|^)\.\.(?:\/|$)|(?:\/|^)\.(?=\/|$)|\/{2,}/g, ""))) {}
+          return path;
+        }
+      };
+    }
+  }
+</script>
+<script src="https://cdn.rawgit.com/fmarcia/UglifyCSS/master/uglifycss-lib.js"></script>
+<script>
+  window.uglifycss = window.module.exports;
+  delete window.module;
+</script>
+
+<script>
+  var colorpicker = jsColorPicker("input.color", {
+    customBG: '#222',
+    readOnly: true,
+    size: 2,
+    // patch: false,
+    init: function(elm, colors) {
+      elm.style.backgroundColor = elm.value;
+      elm.style.color = colors.rgbaMixCustom.luminance > 0.22 ? '#222' : '#ddd';
+    },
+    renderCallback: function (a,b) {
+      var c=this,d=c.input,e=c.patch,f=a.RND.rgb,g=a.RND.hsl,h=c.isIE8?(a.alpha<.16?"0":"")+Math.round(100*a.alpha).toString(16).toUpperCase()+a.HEX:"",i=f.r+", "+f.g+", "+f.b,j="rgba("+i+", "+a.alpha+")",k=1!==a.alpha&&!c.isIE8,l=d.getAttribute("data-colorMode");e.style.cssText="color:"+(a.rgbaMixCustom.luminance>.22?"#222":"#ddd")+";background-color:"+j+";filter:"+(c.isIE8?"progid:DXImageTransform.Microsoft.gradient(startColorstr=#"+h+",endColorstr=#"+h+")":""),d.value="HEX"!==l||k?"rgb"===l||"HEX"===l&&k?k?j:"rgb("+i+")":"hsl"+(k?"a(":"(")+g.h+", "+g.s+"%, "+g.l+"%"+(k?", "+a.alpha:"")+")":"#"+(c.isIE8?h:a.HEX),c.displayCallback&&c.displayCallback(a,b,c)
+      setTimeout(update);
+    }
+  });
+
+  function getCode() {
+    document.getElementById("code").textContent = window.baseCSS.source;
+  }
+
+
+  function update(options) {
+    if (options === undefined) {
+      // Get options from HTML
+      options = {
+        layout: document.querySelector("[name=layout]:checked").value,
+        fonts: {
+          text: document.getElementById("font-text").value,
+          headline: document.getElementById("font-headline").value,
+          code: document.getElementById("font-code").value
+        },
+        colors: {
+          root:           document.getElementById("color-root-bg").value,
+          text:           document.getElementById("color-text-primary").value,
+          text2:          document.getElementById("color-text-secondary").value,
+          accent:         document.getElementById("color-accent").value,
+          accentDark:     (c=>c.monochromatic()[5].setAlpha(c._a)[c._a===1?"toHexString":"toHex8String"]())(tinycolor(document.getElementById("color-accent").value)), // Get 6th monochromatic color while keeping alpha using tinycolor and very bad code
+          visited:        document.getElementById("color-visited").value,
+          accentBg:       document.getElementById("color-accent-bg-primary").value,
+          accentBgText:   document.getElementById("color-accent-bg-primary-text").value,
+          accentBg2:      document.getElementById("color-accent-bg-secondary").value,
+          blockquoteText: document.getElementById("color-accent-bg-secondary-text").value,
+          textDisabled:   document.getElementById("color-accent-bg-secondary-text-disabled").value,
+          accentBorder:   document.getElementById("color-accent-border").value
+        }
+      };
+    }
+
+    var css = window.baseCSS.src.toString();
+
+    // Layout
+    if (options.layout === "centered") css = css + "\nbody { padding: 15px; max-width: 900px; margin: 0 auto; }\n"
+    else if (options.layout === "fullwidth") css = css + "\nbody { padding: 15px; }\n"
+    else if (options.layout !== "none" && options.layout !== undefined) throw new Error("Unknown layout. Possible values: centered, fullwidth, none")
+
+    // Fonts
+    if (options.fonts) {
+      
+      if (typeof options.fonts.text === "string") css = css.replace(/Jaldi, sans-serif/g, options.fonts.text)
+      else if (options.fonts.text !== undefined) throw new Error("Text font must be a string or undefined.")
+      
+      if (typeof options.fonts.headline === "string") css = css.replace(/Share, sans-serif/g, options.fonts.headline)
+      else if (options.fonts.headline !== undefined) throw new Error("Headline font must be a string or undefined.")
+      
+      if (typeof options.fonts.code === "string") css = css.replace(/Fira Mono, monospace/g, options.fonts.code)
+      else if (options.fonts.code !== undefined) throw new Error("Code font must be a string or undefined.")
+    
+    }
+
+    // Colors
+    if (options.colors) {
+      for (var i in options.colors) {
+        if (typeof options.colors[i] === "string") css = css.replace(new RegExp("/\\*%" + i + "%\\*/#[0-9a-f]+", "gi"), options.colors[i])
+        else throw new Error("Color \"" + i + "\" must be a string.")
+      }
+    }
+
+    window.baseCSS.config = css;
+    var link = (options.layout === "centered" ? "1"
+               :options.layout === "fullwidth" ? "2"
+               :"0");
+    link += btoa((options.fonts && options.fonts.text) || "Jaldi, sans-serif") + "-";
+    link += btoa((options.fonts && options.fonts.headline) || "Share, sans-serif") + "-";
+    link += btoa((options.fonts && options.fonts.code) || "Fira Mono, monospace");
+
+    (options.colors && Object.keys(options.colors) || []).forEach(function(i) {
+      link += "-" + ((c=>c.r*256*256*256+c.g*256*256+c.b*256+c.a*255)(tinycolor(options.colors[i]).toRgb())).toString(36)
+    })
+
+    window.baseCSS.source = `/* BASE.CSS
+   Version 0.4
+   Created by Moritz Marquardt, mo-mar.de
+   Licensed under CC0 - https://creativecommons.org/publicdomain/zero/1.0/
+
+   Includes normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css
+
+   Edit configuration:
+    https://tools.mo-mar.de/basecss/#${link}
+
+   Don't forget to include the fonts if you didn't change them:
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share:400|Jaldi:400,700|Fira+Mono:400,700">
+ */
+` + uglifycss.processString(css);
+    document.getElementById("basecss").textContent = css;
+  }
+
+
+  fetch("https://gist.githubusercontent.com/moqmar/ba61cb2293dec3b303aaab02182f70bb/raw/5657654e1295436e9b80b2fc7c1a45f1cfb51dd5/base.css")
+  .then(result => result.text())
+  .then(function(css) {
+    window.baseCSS = { src: css, config: null };
+    update()
+    document.body.style.opacity = "1";
+  }, function(err) {
+    alert(err.message);
+    throw err;
+  })
+</script>
