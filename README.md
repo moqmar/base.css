@@ -1,7 +1,7 @@
 # base.css
 Simple but beautiful styling for all basic HTML elements in ~5KB. Useful as a basic stylesheet to build upon.
 
-To get a CSS base you like, try the [base.css Configurator](https://moqmar.github.io/base.css/) and change fonts and colors.
+**To get a CSS base you like, try the [base.css Configurator](https://moqmar.github.io/base.css/) and change fonts and colors.**
 
 Have a look at the [test page](https://moqmar.github.io/base.css/test.html) to see what it looks like.
 
