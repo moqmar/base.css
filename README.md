@@ -3,7 +3,7 @@ Simple but beautiful styling for all basic HTML elements in ~5KB. Useful as a ba
 
 **To get a CSS base you like, try the [base.css Configurator](https://moqmar.github.io/base.css/) and change fonts and colors.**
 
-Have a look at the [test page](https://moqmar.github.io/base.css/test.html) to see what it looks like.
+Have a look at the [test page](https://moqmar.github.io/base.css/test/) to see what it looks like.
 
 ### Provided classes
 - `inline`          - Only applies to IMG elements. Don't stretch images to the full width (default behaviour) but keep them inline instead.
