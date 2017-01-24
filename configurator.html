@@ -28,7 +28,7 @@
 <h2>Hello World!</h2>
 
 <p>
-  Welcome to the configuration tool for <a href="https://gist.github.com/moqmar/ba61cb2293dec3b303aaab02182f70bb">base.css</a>! Feel free to play around a bit, this page will update in real-time! \o/<br>
+  Welcome to the configuration tool for <a href="https://github.com/moqmar/base.css">base.css</a>! Feel free to play around a bit, this page will update in real-time! \o/<br>
   This is a <a href="https://thatdomaindoesntexist.noiguessitreallydoesnt/abcdefg">link you didn't visit yet</a>, and I guess <a href="">you've been here already</a>!
 </p>
 
@@ -93,12 +93,13 @@
 
 <button onclick="getCode()">Get my code!</button>
 
-<pre id="code" style="word-wrap: break-word; font-size: 12px"></pre>
+<pre id="code" style="word-wrap: break-word; font-size: 12px; display: none" onclick="selectText(this)"></pre>
 
 <script src="https://cdn.rawgit.com/PitPik/colorPicker/41d780c3/color.all.min.js"></script>
 <script src="https://cdn.rawgit.com/PitPik/colorPicker/41d780c3/javascript_implementation/jsColorPicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
 <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=fetch"></script>
+<script src="https://cdn.rawgit.com/iamdustan/smoothscroll/master/dist/smoothscroll.js"></script>
 
 <script>
   window.module = {exports:{}};
@@ -128,23 +129,12 @@
 </script>
 
 <script>
-  var colorpicker = jsColorPicker("input.color", {
-    customBG: '#222',
-    readOnly: true,
-    size: 2,
-    // patch: false,
-    init: function(elm, colors) {
-      elm.style.backgroundColor = elm.value;
-      elm.style.color = colors.rgbaMixCustom.luminance > 0.22 ? '#222' : '#ddd';
-    },
-    renderCallback: function (a,b) {
-      var c=this,d=c.input,e=c.patch,f=a.RND.rgb,g=a.RND.hsl,h=c.isIE8?(a.alpha<.16?"0":"")+Math.round(100*a.alpha).toString(16).toUpperCase()+a.HEX:"",i=f.r+", "+f.g+", "+f.b,j="rgba("+i+", "+a.alpha+")",k=1!==a.alpha&&!c.isIE8,l=d.getAttribute("data-colorMode");e.style.cssText="color:"+(a.rgbaMixCustom.luminance>.22?"#222":"#ddd")+";background-color:"+j+";filter:"+(c.isIE8?"progid:DXImageTransform.Microsoft.gradient(startColorstr=#"+h+",endColorstr=#"+h+")":""),d.value="HEX"!==l||k?"rgb"===l||"HEX"===l&&k?k?j:"rgb("+i+")":"hsl"+(k?"a(":"(")+g.h+", "+g.s+"%, "+g.l+"%"+(k?", "+a.alpha:"")+")":"#"+(c.isIE8?h:a.HEX),c.displayCallback&&c.displayCallback(a,b,c)
-      setTimeout(update);
-    }
-  });
 
+  // Show CSS
   function getCode() {
     document.getElementById("code").textContent = window.baseCSS.source;
+    document.getElementById("code").style.display = "block";
+    document.getElementById("code").scrollIntoView({ behavior: "smooth" });
   }
 
 
@@ -205,6 +195,8 @@
     }
 
     window.baseCSS.config = css;
+    
+    // Create link to generator
     var link = (options.layout === "centered" ? "1"
                :options.layout === "fullwidth" ? "2"
                :"0");
@@ -213,35 +205,105 @@
     link += btoa((options.fonts && options.fonts.code) || "Fira Mono, monospace");
 
     (options.colors && Object.keys(options.colors) || []).forEach(function(i) {
-      link += "-" + ((c=>c.r*256*256*256+c.g*256*256+c.b*256+c.a*255)(tinycolor(options.colors[i]).toRgb())).toString(36)
+      if (i == "accentDark") return true;
+      link += "-" + ((c=>c.r*256*256*256+c.g*256*256+c.b*256+Math.floor(c.a*255))(tinycolor(options.colors[i]).toRgb())).toString(36);
     })
 
-    window.baseCSS.source = `/* BASE.CSS
-   Version 0.4
-   Created by Moritz Marquardt, mo-mar.de
-   Licensed under CC0 - https://creativecommons.org/publicdomain/zero/1.0/
-
-   Includes normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css
-
-   Edit configuration:
-    https://tools.mo-mar.de/basecss/#${link}
-
-   Don't forget to include the fonts if you didn't change them:
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share:400|Jaldi:400,700|Fira+Mono:400,700">
+    // Include version and other information
+    window.baseCSS.source = `/*
+ * BASE.CSS
+ * Simple but beautiful styling for all basic HTML elements. Useful as a basic stylesheet to build upon.
+ * Version 0.5
+ * Created by Moritz Marquardt, mo-mar.de
+ * Licensed under CC0 - https://creativecommons.org/publicdomain/zero/1.0/
+ *
+ * Includes normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css
+ *
+ * Edit configuration:
+ *  https://tools.mo-mar.de/basecss/#${link}
+ *
+ * Don't forget to include the fonts if you didn't change them:
+ *  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share:400|Jaldi:400,700|Fira+Mono:400,700">
  */
 ` + uglifycss.processString(css);
     document.getElementById("basecss").textContent = css;
   }
 
 
-  fetch("https://gist.githubusercontent.com/moqmar/ba61cb2293dec3b303aaab02182f70bb/raw/5657654e1295436e9b80b2fc7c1a45f1cfb51dd5/base.css")
+  fetch("https://raw.githubusercontent.com/moqmar/base.css/master/base.css")
   .then(result => result.text())
   .then(function(css) {
     window.baseCSS = { src: css, config: null };
+
+    // If a hash is given, apply the parameters
+    if (window.location.hash && window.location.hash.match(/^#[012](?:[0-9a-z+\/=]+-){3}(?:[0-9a-z]+-){10}[0-9a-z]+$/i)) {
+      var match = [
+        window.location.hash.substr(1,1)
+      ].concat(window.location.hash.substr(2).split("-"));
+      
+      document.querySelector("[name=layout]:checked").checked = false;
+      document.querySelector("[name=layout][value=" + (match[0] == 1 ? "centered" : match[0] == 2 ? "fullwidth" : "none") + "]").checked = true;
+
+      document.getElementById("font-text").value = atob(match[1]);
+      document.getElementById("font-headline").value = atob(match[2]);
+      document.getElementById("font-code").value = atob(match[3]);
+
+      [
+        "root-bg",
+        "text-primary",
+        "text-secondary",
+        "accent",
+        "visited",
+        "accent-bg-primary",
+        "accent-bg-primary-text",
+        "accent-bg-secondary",
+        "accent-bg-secondary-text",
+        "accent-bg-secondary-text-disabled",
+        "accent-border"
+      ].forEach(function(c, i) {
+        var color = tinycolor("#" + parseInt(match[4+i], 36).toString(16));
+      document.getElementById("color-" + c).value = color[color._a===1?"toHexString":"toRgbString"]()[color._a===1?"toUpperCase":"substr"]();
+      })
+    }
+
+    // Initialize stylesheet
     update()
+
+    // Initialize color picker
+    var colorpicker = jsColorPicker("input.color", {
+      customBG: '#222',
+      readOnly: true,
+      size: 2,
+      init: function(elm, colors) {
+        elm.style.backgroundColor = elm.value;
+        elm.style.color = colors.rgbaMixCustom.luminance > 0.22 ? '#222' : '#ddd';
+      },
+      renderCallback: function (a,b) {
+        // Copied from source
+        var c=this,d=c.input,e=c.patch,f=a.RND.rgb,g=a.RND.hsl,h=c.isIE8?(a.alpha<.16?"0":"")+Math.round(100*a.alpha).toString(16).toUpperCase()+a.HEX:"",i=f.r+", "+f.g+", "+f.b,j="rgba("+i+", "+a.alpha+")",k=1!==a.alpha&&!c.isIE8,l=d.getAttribute("data-colorMode");e.style.cssText="color:"+(a.rgbaMixCustom.luminance>.22?"#222":"#ddd")+";background-color:"+j+";filter:"+(c.isIE8?"progid:DXImageTransform.Microsoft.gradient(startColorstr=#"+h+",endColorstr=#"+h+")":""),d.value="HEX"!==l||k?"rgb"===l||"HEX"===l&&k?k?j:"rgb("+i+")":"hsl"+(k?"a(":"(")+g.h+", "+g.s+"%, "+g.l+"%"+(k?", "+a.alpha:"")+")":"#"+(c.isIE8?h:a.HEX),c.displayCallback&&c.displayCallback(a,b,c)
+        // Update stylesheet
+        setTimeout(update);
+      }
+    });
+
+    // Show body (hidden on load because we don't have a stylesheet)
     document.body.style.opacity = "1";
   }, function(err) {
+    // Problem while fetching base.css source
     alert(err.message);
     throw err;
   })
+
+  // Select all text in an element
+  function selectText(where) {
+    if (document.selection) {
+      var range = document.body.createTextRange();
+      range.moveToElementText(where);
+      range.select();
+    } else if (window.getSelection) {
+      var range = document.createRange();
+      range.selectNode(where);
+      window.getSelection().addRange(range);
+    }
+  }
 </script>
